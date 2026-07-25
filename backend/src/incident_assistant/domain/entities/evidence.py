@@ -1,18 +1,27 @@
-from dataclasses import dataclass
-from enum import Enum
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from datetime import datetime, UTC
+from typing import Any
+from uuid import UUID, uuid4
 
 
-class EvidenceType(str, Enum):
-    LOG = "log"
-    METRIC = "metric"
-    DEPLOYMENT = "deployment"
-    GITHUB = "github"
-    KUBERNETES = "kubernetes"
-    DOCUMENT = "document"
-
-
-@dataclass(slots=True)
+@dataclass
 class Evidence:
-    source: str
-    evidence_type: EvidenceType
-    content: str
+    id: UUID = field(default_factory=uuid4)
+
+    source: str = ""
+
+    evidence_type: str = ""
+
+    key: str = ""
+
+    value: Any = None
+
+    confidence: float = 1.0
+
+    collected_at: datetime = field(
+        default_factory=lambda: datetime.now(UTC)
+    )
+
+    metadata: dict[str, Any] = field(default_factory=dict)
