@@ -5,12 +5,13 @@ from typing import Any
 from uuid import UUID
 
 
+
+
 @dataclass
 class AgentContext:
 
     request_id: UUID
     incident_id: UUID
-
     request: dict[str, Any]
 
     state: InvestigationState = field(

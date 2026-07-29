@@ -12,12 +12,12 @@ class SimplePlanner(Planner):
         self,
         context: AgentContext,
     ) -> ExecutionPlan:
-
+        print("passed the execution plan")
         return ExecutionPlan(
             steps=[
                 ExecutionStep(agent="metrics"),
                 ExecutionStep(agent="logs"),
                 ExecutionStep(agent="git"),
-                ExecutionStep(agent="reporter"),
+                # ExecutionStep(agent="reporter"),
             ]
         )

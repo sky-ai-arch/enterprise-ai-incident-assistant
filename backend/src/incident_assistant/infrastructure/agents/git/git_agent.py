@@ -2,6 +2,9 @@ from incident_assistant.domain.interfaces.agent import Agent
 from incident_assistant.domain.value_objects.agent_context import (
     AgentContext,
 )
+from incident_assistant.domain.entities.evidence import Evidence
+from incident_assistant.domain.interfaces.tools.git_tools import GitTool
+
 from incident_assistant.domain.value_objects.agent_result import AgentResult
 
 class GitAgent(Agent):
@@ -9,6 +12,11 @@ class GitAgent(Agent):
     @property
     def name(self) -> str:
         return "git"
+    def __init__(
+        self,
+        git_tool: GitTool,
+    ):
+        self._git_tool = git_tool
 
     def execute(
             self,
@@ -24,7 +32,7 @@ class GitAgent(Agent):
                 confidence=1.0,
             )
         )
-
+        
         context.state.observations.append(
             "Recent deployment detected."
         )

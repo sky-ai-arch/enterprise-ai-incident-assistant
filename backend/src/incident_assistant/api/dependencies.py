@@ -1,5 +1,7 @@
 from __future__ import annotations
-
+from incident_assistant.infrastructure.tools.prometheus.mock_prometheus_tool import (
+    MockPrometheusTool,
+)
 from incident_assistant.application.agent_runtime.runtime import AgentRuntime
 from incident_assistant.application.agent_runtime.sequential_runtime import (
     SequentialAgentRuntime,
@@ -27,12 +29,35 @@ from incident_assistant.application.agent_runtime.runtime_registry import (
     RuntimeRegistry,
 )
 
+from incident_assistant.infrastructure.tools.loki.mock_log_tools import (
+    MockLogsTool,
+)
+from incident_assistant.infrastructure.tools.git.mock_git_tool import (
+    MockGitTool,
+)
+from incident_assistant.application.analyzers.investigation_analyzer import (
+    InvestigationAnalyzer,
+)
+
 # ------------------------------------------------------------------
 # Repository Singleton
 # ------------------------------------------------------------------
 
 _repository: IncidentRepository | None = None
 
+#  analyzer singleton
+
+
+_analyzer: InvestigationAnalyzer | None = None
+
+
+def get_investigation_analyzer() -> InvestigationAnalyzer:
+    global _analyzer
+
+    if _analyzer is None:
+        _analyzer = InvestigationAnalyzer()
+
+    return _analyzer
 
 def get_incident_repository() -> IncidentRepository:
     global _repository
@@ -54,17 +79,23 @@ def get_runtime_registry() -> RuntimeRegistry:
     global _runtime_registry
 
     if _runtime_registry is None:
+
         registry = RuntimeRegistry()
 
-        registry.register(MetricsAgent())
-        registry.register(LogsAgent())
-        registry.register(GitAgent())
+        metrics_tool = MockPrometheusTool()
+
+        registry.register(
+            MetricsAgent(metrics_tool)
+        )
+        git_tool = MockGitTool()
+        log_tool = MockLogsTool()
+        registry.register(LogsAgent(log_tool))
+        registry.register(GitAgent(git_tool))
         registry.register(ReporterAgent())
 
         _runtime_registry = registry
 
     return _runtime_registry
-
 
 # ------------------------------------------------------------------
 # Planner
@@ -88,7 +119,8 @@ def get_agent_runtime() -> AgentRuntime:
 
 def get_investigation_orchestrator() -> InvestigationOrchestrator:
     return InvestigationOrchestrator(
-        planner=get_planner(),
-        runtime=get_agent_runtime(),
-        registry=get_runtime_registry(),
-    )
+    planner=get_planner(),
+    runtime=get_agent_runtime(),
+    registry=get_runtime_registry(),
+    analyzer=get_investigation_analyzer(),
+)

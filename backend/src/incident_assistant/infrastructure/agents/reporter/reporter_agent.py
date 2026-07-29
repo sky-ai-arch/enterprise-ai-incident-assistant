@@ -3,6 +3,7 @@ from incident_assistant.domain.interfaces.agent import Agent
 from incident_assistant.domain.value_objects.agent_context import (
     AgentContext,
 )
+from incident_assistant.domain.value_objects.investigation_report import InvestigationReport
 from incident_assistant.domain.value_objects.agent_result import AgentResult
 
 class ReporterAgent(Agent):
@@ -11,22 +12,21 @@ class ReporterAgent(Agent):
     def name(self) -> str:
         return "reporter"
         
+
     def execute(
         self,
         context: AgentContext,
+        report: InvestigationReport,
     ) -> AgentResult:
 
-        summary = "\n".join(context.state.observations)
+        context.state.report = report
 
-        context.state.artifacts["report"] = summary
-
+        context.state.artifacts["report"] = report
+        
         return AgentResult(
             agent=self.name,
             success=True,
             observations=[
-                "Generated investigation report."
+                "Investigation report generated."
             ],
-            artifacts={
-                "report": summary,
-            },
         )
