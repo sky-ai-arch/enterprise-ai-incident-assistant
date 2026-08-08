@@ -4,13 +4,13 @@ from dataclasses import dataclass, field
 
 
 @dataclass
-class Hypothesis:
+class Recommendation:
 
     title: str
 
     description: str
 
-    confidence: float
+    priority: str
 
     evidence_keys: list[str] = field(
         default_factory=list
